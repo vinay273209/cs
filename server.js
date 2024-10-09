@@ -2,11 +2,16 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const XLSX = require("xlsx");
 const fs = require("fs");
+const path = require("path");
 
 // Initialize the app
 const app = express();
 app.use(bodyParser.json());
 app.use(express.static("public"));
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+  });
 
 // POST route to handle data submission
 app.post("/submit", (req, res) => {
@@ -58,6 +63,11 @@ app.post("/submit", (req, res) => {
 
   res.json({ message: "Data successfully submitted and saved to Excel!" });
 });
+
+// Handle 404 errors
+app.use((req, res) => {
+    res.status(404).send("404: Page not found");
+  });
 
 // Start the server
 app.listen(3000, () => {
