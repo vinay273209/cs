@@ -143,17 +143,28 @@
           members: membersData,
         };
 
-        // Sending data to the server
-        const response = await fetch("/submit", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
+        try {
+          // Sending data to the server
+          const response = await fetch("/submit", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
 
-        const result = await response.json();
-        alert(result.message);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          alert(result.message); // Alert the result message
+        } catch (error) {
+          console.error("Error:", error);
+          alert(
+            "An error occurred while submitting data. Check console for details."
+          );
+        }
       }
     </script>
   </head>
