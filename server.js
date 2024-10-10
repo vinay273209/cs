@@ -154,20 +154,18 @@ app.post("/submit", (req, res) => {
       .status(500)
       .json({ message: "An error occurred while processing your request." });
   }
-<<<<<<< HEAD
-});
-
-// Handle 404 errors
-app.use((req, res) => {
-  res.status(404).send("404: Page not found");
-=======
->>>>>>> a4c679fb5327655c9c44a7c073195d13d7cb25ce
 });
 
 // Handle 404 errors
 app.use((req, res) => {
   res.status(404).send("404: Page not found");
 });
+
+// Handle 404 errors
+app.use((req, res) => {
+  res.status(404).send("404: Page not found");
+});
+
 // Start the server
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
