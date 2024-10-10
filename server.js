@@ -1,11 +1,16 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 const XLSX = require("xlsx");
 const fs = require("fs");
 const path = require("path");
 
 // Initialize the app
 const app = express();
+
+// Use CORS middleware
+app.use(cors());
+
 app.use(bodyParser.json());
 app.use(express.static("public"));
 
