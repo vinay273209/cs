@@ -9,7 +9,14 @@ const path = require("path");
 const app = express();
 
 // Use CORS middleware
-app.use(cors());
+app.use(
+  cors({
+    origin:
+      "https://sarika-agrawal.github.io/Project-Submission-Form/public/index.html", // Allow your GitHub Pages domain
+    methods: ["GET", "POST"], // Specify allowed methods
+    credentials: true, // Allow credentials if needed
+  })
+);
 
 app.use(bodyParser.json());
 app.use(express.static("public"));
@@ -32,8 +39,6 @@ const getNextGroupId = (workbook) => {
       .filter((id) => id) // Filter out any undefined or null values
       .map((id) => parseInt(id.substring(1))) // Extract numeric part
       .filter((num) => !isNaN(num)); // Filter valid numbers
-
-    console.log("Group IDs found:", groupIds);
 
     // If we have valid group IDs, increment the last one; otherwise, start with G1
     if (groupIds.length > 0) {
@@ -72,7 +77,6 @@ app.post("/submit", (req, res) => {
 
     // Check for valid data
     if (!projectTitle || !members || members.length === 0) {
-      console.error("Invalid data: Missing project title or members.");
       return res.status(400).json({ message: "Invalid data received." });
     }
 
@@ -84,21 +88,21 @@ app.post("/submit", (req, res) => {
     // Check if file exists
     if (fs.existsSync(filename)) {
       workbook = XLSX.readFile(filename);
-      worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      worksheet = workbook.Sheets["Project Info"];
     } else {
       // Create a new workbook and worksheet if the file does not exist
       workbook = XLSX.utils.book_new();
       worksheet = XLSX.utils.json_to_sheet([]);
       XLSX.utils.book_append_sheet(workbook, worksheet, "Project Info");
-      console.log("Created a new Excel file and worksheet.");
 
       const headers = {
-        Group_ID: "Group ID",
-        Project_Title: "Project Title",
+        S_No: "S.No.",
         University_Roll_No: "University Roll No",
+        Group_ID: "Group ID",
         Name: "Name",
         Mobile_No: "Mobile No",
-        Section: "Section",
+        Email_Id: "Email Id",
+        Project_Title: "Project Title",
       };
       XLSX.utils.sheet_add_json(worksheet, [headers], {
         skipHeader: true,
@@ -134,13 +138,17 @@ app.post("/submit", (req, res) => {
     console.log("New Group ID:", groupId);
 
     // Prepare rows for the group, one for each member
+    const existingData = XLSX.utils.sheet_to_json(worksheet);
+    let currentRowNumber = existingData.length; // Current row count, including headers
+
     const rows = members.map((member) => ({
-      Group_ID: groupId,
-      Project_Title: projectTitle,
+      S_No: ++currentRowNumber, // Increment the serial number for each member
       University_Roll_No: member.rollNo,
+      Group_ID: groupId,
       Name: member.name,
       Mobile_No: member.mobile,
-      Section: member.section,
+      Email_Id: member.email, // Add the email field
+      Project_Title: projectTitle,
     }));
 
     // Append the new rows to the existing worksheet
@@ -151,21 +159,14 @@ app.post("/submit", (req, res) => {
 
     // Write the updated workbook to the file
     XLSX.writeFile(workbook, filename);
-    console.log("Data successfully written to Excel.");
 
     res.json({ message: "Data successfully submitted and saved to Excel!" });
   } catch (error) {
     console.error("Error processing request:", error.message || error);
-    console.error("Full error stack:", error);
     res
       .status(500)
       .json({ message: "An error occurred while processing your request." });
   }
-});
-
-// Handle 404 errors
-app.use((req, res) => {
-  res.status(404).send("404: Page not found");
 });
 
 // Handle 404 errors
