@@ -23,10 +23,12 @@ const getNextGroupId = (workbook) => {
 
     // Get the highest Group ID
     const groupIds = data
-      .map((entry) => entry.Group_ID)
+      .map((entry) => entry["Group ID"])
       .filter((id) => id) // Filter out any undefined or null values
       .map((id) => parseInt(id.substring(1))) // Extract numeric part
       .filter((num) => !isNaN(num)); // Filter valid numbers
+
+    console.log("Group IDs found:", groupIds);
 
     // If we have valid group IDs, increment the last one; otherwise, start with G1
     if (groupIds.length > 0) {
