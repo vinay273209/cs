@@ -160,7 +160,6 @@ app.post("/submit", (req, res) => {
 app.use((req, res) => {
   res.status(404).send("404: Page not found");
 });
-
 // Start the server
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
